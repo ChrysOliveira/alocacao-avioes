@@ -1,13 +1,34 @@
 import random
 
-meta = "h6fAdfSF356D4Gwrd4"
-
-CARACTERES = "abcdefghijklmnopqrsuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
-
 def faz_lista_inicial():
     lista = []
-    for i in range(len(meta)):
-        lista.append(random.choice(CARACTERES))
+
+    for i in range(84):
+        if i in range(10):
+            lista.append([i, "SP", "RJ", 0, 1.0])
+        elif i in range(10, 16):
+            lista.append([i, "SP", "BR", 0, 2.0])
+        elif i in range(16, 24):
+            lista.append([i, "SP", "BH", 0, 1.5])
+        elif i in range(24, 34):
+            lista.append([i, "RJ", "SP", 0, 1.0])
+        elif i in range(34, 39):
+            lista.append([i, "RJ", "BR", 0, 2.0])
+        elif i in range(39, 45):
+            lista.append([i, "RJ", "BH", 0, 1.5])
+        elif i in range(45, 51):
+            lista.append([i, "BR", "SP", 0, 2.0])
+        elif i in range(51, 56):
+            lista.append([i, "BR", "RJ", 0, 2.0])
+        elif i in range(56, 63):
+            lista.append([i, "BR", "BH", 0, 1.5])
+        elif i in range(63, 71):
+            lista.append([i, "BH", "SP", 0, 1.5])
+        elif i in range(71, 77):
+            lista.append([i, "BH", "RJ", 0, 1.5])
+        elif i in range(77, 84):
+            lista.append([i, "BH", "BR", 0, 1.5])
+
     return lista
 
 def fitness(lista):
