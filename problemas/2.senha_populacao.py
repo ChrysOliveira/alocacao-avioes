@@ -5,6 +5,7 @@ quantidade_max_avioes = 84
 #de 0 ate 24h em minutos pulando de 30 em 30 minutos
 horarios_possiveis_saida = [i for i in range(0, 1440, 30)]
 
+
 def faz_lista_inicial():
     lista = []
 
@@ -50,6 +51,8 @@ def mutar(individuo):
 
 def fitness(individuo):
     punicao_total = 0
+    avioes_visitados = set()
+    sorted(individuo, key=lambda alocacao: alocacao[3])
 
     for alocacao in individuo:
         individuo_copia_sem_atual = list(copy(individuo))
@@ -57,6 +60,11 @@ def fitness(individuo):
 
         aviao = alocacao[0]
         aviao_tempo_ocupado = [alocacao[3] - 60, alocacao[4] + 30]
+
+        # verifica se a manutencao do mesmo dia
+        if aviao_tempo_ocupado[0] < 0 or aviao_tempo_ocupado[0] > 1440:
+            punicao_total = float("-inf")
+            break
 
         # valida se tem conflito de aviao nos voos -> mesmo aviao em dois voos diferentes no mesmo horario
         for prox_alocacao in individuo_copia_sem_atual:
@@ -66,23 +74,40 @@ def fitness(individuo):
                 if max(aviao_tempo_ocupado) < min(prox_aviao_tempo_ocupado) or min(aviao_tempo_ocupado) > max(prox_aviao_tempo_ocupado):
                     punicao_total = float("-inf")
                     break
+                elif alocacao[2] != prox_alocacao[1]:
+                    punicao_total = float("-inf")
+                    break
 
         if punicao_total == float("-inf"):
             break
 
+        #verifica a quantidade total do tempo alocado de um aviao e aplica a punicao respectiva
+        if aviao in avioes_visitados:
+            continue
+        else:
+            avioes_visitados.add(aviao)
+            tempo_alocacao_total = aviao_tempo_ocupado[1] - aviao_tempo_ocupado[0]
+
+            for prox_alocacao in individuo_copia_sem_atual:
+                if prox_alocacao[0] == aviao:
+                    prox_aviao_tempo_ocupado = [prox_alocacao[3] - 60, prox_alocacao[4] + 30]
+                    tempo_alocacao_total += prox_aviao_tempo_ocupado[1] - prox_aviao_tempo_ocupado[0]
+
+            tempo_parado = (1440 - tempo_alocacao_total) * -1
+
+            punicao_total += tempo_parado
+
     return punicao_total
-
-
 
 def selecao(lista):
     nova_lista = sorted(lista, key=fitness, reverse=False)
-    return nova_lista[0:10]
+    return nova_lista[0:20]
 
 print('Iniciando...')
 random.seed()
 
 # pooulação inicial
-populacao = [faz_lista_inicial() for _ in range(0,10)]
+populacao = [faz_lista_inicial() for _ in range(0, 100)]
 
 geracoes = 0
 while True:
@@ -90,9 +115,14 @@ while True:
     populacao = selecao(populacao + lista_mutada)
 
     geracoes += 1
+
     if geracoes % 50 == 0:
-        print(''.join(populacao[0]), geracoes)
+       print(populacao)
+       quantidade_max_avioes -= 1
     # critério de parada
-    if fitness(populacao[0]) == len(meta):
+    if quantidade_max_avioes == 0:
+        melhor_individuo = populacao[0]
+        print(f"Melhor solucao {sorted(melhor_individuo, key=lambda alocacao: alocacao[3])}")
         break
+
 print('Finalizado!')
