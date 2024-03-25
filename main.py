@@ -1,16 +1,25 @@
-# This is a sample Python script.
+from problemas.tiro import Tiro
+from geneticos.algoritmo_genetico_individuo import AlgoritmoGeneticoIndividuo
+from geneticos.algoritmo_genetico_populacao import AlgoritmoGeneticoPopulacao
 
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from problemas.tiro import Tiro, PopulacaoCanhoes
 
+individuo = Tiro()
+genetico = AlgoritmoGeneticoIndividuo(individuo)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+individuo_adaptado = genetico.rodar(max_geracoes = 1000, imprimir_em_geracaoes=100)
 
+print("\nPrimeiro mais adaptado:")
+print(f"Quantidade de gerações: {genetico.qtd_geracoes()}")
+print(f"Erro: {genetico.erro_final()}")
+print(individuo_adaptado.imprime())
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# populacao = PopulacaoCanhoes(Tiro, tamanho_populacao=10)
+# genetico = AlgoritmoGeneticoPopulacao(populacao)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# individuo_adaptado = genetico.rodar(max_geracoes = 1000, imprimir_em_geracaoes=100)
+
+# print("\nPrimeiro mais adaptado:")
+# print(f"Quantidade de gerações: {genetico.qtd_geracoes()}")
+# print(f"Erro: {genetico.erro_final()}")
+# print(individuo_adaptado.imprime())
