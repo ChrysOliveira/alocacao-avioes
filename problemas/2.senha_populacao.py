@@ -52,7 +52,7 @@ def mutar(individuo):
 def fitness(individuo):
     punicao_total = 0
     avioes_visitados = set()
-    individuo = sorted(individuo, key=lambda alocacao: alocacao[3])
+    # individuo = sorted(individuo, key=lambda alocacao: alocacao[3])
 
     for alocacao in individuo:
         individuo_copia_sem_atual = list(copy(individuo))
@@ -63,7 +63,8 @@ def fitness(individuo):
 
         # verifica se a manutencao do mesmo dia
         if aviao_tempo_ocupado[0] < 0 or aviao_tempo_ocupado[0] > 1440:
-            punicao_total = float("-inf")
+            # punicao_total = float("-inf")
+            punicao_total = -10001
             break
 
         # valida se tem conflito de aviao nos voos -> mesmo aviao em dois voos diferentes no mesmo horario
@@ -73,14 +74,19 @@ def fitness(individuo):
                 #or min(aviao_tempo_ocupado) > max(prox_aviao_tempo_ocupado)
 
                 #trocamos o menor por maior
+                # =-=-=-=-=-=-=-=-=-=-=-=-=-=- TODOS OS INDIVIDUOS ESTAO MORRENDO AQUI
                 if max(aviao_tempo_ocupado) > min(prox_aviao_tempo_ocupado):
-                    punicao_total = float("-inf")
+                    # punicao_total = float("-inf")
+                    punicao_total = -10002
                     break
                 elif alocacao[2] != prox_alocacao[1]:
-                    punicao_total = float("-inf")
+                    # punicao_total = float("-inf")
+                    punicao_total = -10003
                     break
+                # =-=-=-=-=-=-=-=-=-=-=-=-=-=- AQUI ELE JA TA MORTO
 
-        if punicao_total == float("-inf"):
+        # if punicao_total == float("-inf"):
+        if punicao_total < -10000:
             break
 
         #verifica a quantidade total do tempo alocado de um aviao e aplica a punicao respectiva
@@ -102,30 +108,40 @@ def fitness(individuo):
     return punicao_total
 
 def selecao(lista):
-    nova_lista = sorted(lista, key=fitness, reverse=False)
-    return nova_lista[0:20]
+    nova_lista = sorted(lista, key=fitness, reverse=True)
+    return nova_lista[0:10]
+
+def ordena_individuos_da_populacao(populacao):
+    populacao_com_individuos_ordenados = []
+    for individuo in populacao:
+        individuo = sorted(individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))
+        populacao_com_individuos_ordenados.append(individuo)
+
+    return populacao_com_individuos_ordenados
 
 print('Iniciando...')
 random.seed()
 
 # pooulação inicial
-populacao = [faz_lista_inicial() for _ in range(0, 100)]
+populacao = [faz_lista_inicial() for _ in range(10)]
 
 geracoes = 0
 while True:
     lista_mutada = [mutar(individuo) for individuo in populacao]
-    populacao = selecao(populacao + lista_mutada)
+    lista_unificada = populacao + lista_mutada
+    lista_unificada = ordena_individuos_da_populacao(lista_unificada)
+    populacao = selecao(lista_unificada)
 
     geracoes += 1
 
-    if geracoes % 1000 == 0:
+    if geracoes % 100 == 0:
         quantidade_max_avioes -= 1
-        ordenado_por_horario = sorted(populacao[0], key=lambda alocacao: (alocacao[0], alocacao[3]))
-        print(f"Populacao no momento: {ordenado_por_horario} \nQuantidade de avioes: {quantidade_max_avioes}\nFitness do melhor: {fitness(populacao[0])}\n\n")
+        ordenado_por_aviao_e_horario = sorted(populacao[0], key=lambda alocacao: (alocacao[0], alocacao[3]))
+        print(f"Populacao no momento: {ordenado_por_aviao_e_horario} \nQuantidade de avioes: {quantidade_max_avioes}\nFitness do melhor: {fitness(ordenado_por_aviao_e_horario)}\n\n")
     # critério de parada
-    if geracoes == 84000:
+    if geracoes == 8400:
         melhor_individuo = populacao[0]
-        print(f"Melhor solucao {sorted(melhor_individuo, key=lambda alocacao: alocacao[3])}")
+        print(f"Melhor solucao {sorted(melhor_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))}\nFitness melhor solucao: {fitness(melhor_individuo)}")
         break
 
 print('Finalizado!')
