@@ -2,8 +2,9 @@ import random
 from copy import copy
 
 quantidade_max_avioes = 84
-#de 0 ate 24h em minutos pulando de 30 em 30 minutos
+# de 0 ate 24h em minutos pulando de 30 em 30 minutos
 horarios_possiveis_saida = [i for i in range(60, 1440, 30)]
+
 
 def faz_lista_inicial():
     lista = []
@@ -36,26 +37,42 @@ def faz_lista_inicial():
 
     return lista
 
+
 def mutar(individuo):
     novo_individuo = list(individuo)
+
+    aviao_e_ultimo_horario = dict()
 
     for alocacao in novo_individuo:
 
         alocacao[0] = random.randint(0, quantidade_max_avioes)
 
-        novo_horario = random.randint(0, len(horarios_possiveis_saida) - 1)
-        alocacao[3] = horarios_possiveis_saida[novo_horario]
-        alocacao[5] = alocacao[3] + 30 + alocacao[4]
+        if alocacao[0] not in aviao_e_ultimo_horario:
+            novo_horario = 60
+            alocacao[3] = novo_horario
+            alocacao[5] = alocacao[3] + 30 + alocacao[4]
+            aviao_e_ultimo_horario[alocacao[0]] = alocacao[5] + 60
+        else:
+            # novo_horario = random.randint(0, len(horarios_possiveis_saida) - 1)
+            novo_horario = aviao_e_ultimo_horario[alocacao[0]]
+            # alocacao[3] = horarios_possiveis_saida[novo_horario]
+            alocacao[3] = novo_horario
+            alocacao[5] = alocacao[3] + 30 + alocacao[4]
+            aviao_e_ultimo_horario[alocacao[0]] = alocacao[5] + 60
 
+    # items = sorted(aviao_e_ultimo_horario.items(), key=lambda item:item[0])
+    #
+    # print(items)
     return novo_individuo
+
 
 def fitness(individuo):
     punicao_total = 0
     avioes_visitados = set()
     # individuo = sorted(individuo, key=lambda alocacao: alocacao[3])
+    individuo_copia_sem_atual = list(copy(individuo))
 
     for alocacao in individuo:
-        individuo_copia_sem_atual = list(copy(individuo))
         individuo_copia_sem_atual.remove(alocacao)
 
         aviao = alocacao[0]
@@ -71,9 +88,9 @@ def fitness(individuo):
         for prox_alocacao in individuo_copia_sem_atual:
             if prox_alocacao[0] == aviao:
                 prox_aviao_tempo_ocupado = [prox_alocacao[3] - 60, prox_alocacao[5]]
-                #or min(aviao_tempo_ocupado) > max(prox_aviao_tempo_ocupado)
+                # or min(aviao_tempo_ocupado) > max(prox_aviao_tempo_ocupado)
 
-                #trocamos o menor por maior
+                # trocamos o menor por maior
                 # =-=-=-=-=-=-=-=-=-=-=-=-=-=- TODOS OS INDIVIDUOS ESTAO MORRENDO AQUI
                 if max(aviao_tempo_ocupado) > min(prox_aviao_tempo_ocupado):
                     # punicao_total = float("-inf")
@@ -89,7 +106,7 @@ def fitness(individuo):
         if punicao_total < -10000:
             break
 
-        #verifica a quantidade total do tempo alocado de um aviao e aplica a punicao respectiva
+        # verifica a quantidade total do tempo alocado de um aviao e aplica a punicao respectiva
         if aviao in avioes_visitados:
             continue
         else:
@@ -107,9 +124,11 @@ def fitness(individuo):
 
     return punicao_total
 
+
 def selecao(lista):
     nova_lista = sorted(lista, key=fitness, reverse=True)
     return nova_lista[0:10]
+
 
 def ordena_individuos_da_populacao(populacao):
     populacao_com_individuos_ordenados = []
@@ -118,6 +137,7 @@ def ordena_individuos_da_populacao(populacao):
         populacao_com_individuos_ordenados.append(individuo)
 
     return populacao_com_individuos_ordenados
+
 
 print('Iniciando...')
 random.seed()
@@ -137,11 +157,13 @@ while True:
     if geracoes % 100 == 0:
         quantidade_max_avioes -= 1
         ordenado_por_aviao_e_horario = sorted(populacao[0], key=lambda alocacao: (alocacao[0], alocacao[3]))
-        print(f"Populacao no momento: {ordenado_por_aviao_e_horario} \nQuantidade de avioes: {quantidade_max_avioes}\nFitness do melhor: {fitness(ordenado_por_aviao_e_horario)}\n\n")
+        print(f"Populacao no momento: {ordenado_por_aviao_e_horario} \nQuantidade de avioes: {quantidade_max_avioes}"
+              f"\nFitness do melhor: {fitness(ordenado_por_aviao_e_horario)}\n\n")
     # critério de parada
     if geracoes == 8400:
         melhor_individuo = populacao[0]
-        print(f"Melhor solucao {sorted(melhor_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))}\nFitness melhor solucao: {fitness(melhor_individuo)}")
+        print(f"Melhor solucao {sorted(melhor_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))}"
+              f"\nFitness melhor solucao: {fitness(melhor_individuo)}")
         break
 
 print('Finalizado!')
