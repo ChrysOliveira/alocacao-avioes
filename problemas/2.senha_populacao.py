@@ -49,6 +49,20 @@ def mutar(individuo):
 
         alocacao[0] = random.randint(0, quantidade_max_avioes)
 
+    novo_individuo_ordenado = sorted(novo_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))
+
+    for alocacao in novo_individuo_ordenado:
+
+        if alocacao[0] not in aviao_e_ultimo_destino:
+            aviao_e_ultimo_destino[alocacao[0]] = alocacao[2]
+        else:
+            if(alocacao[1] != ultimo_destino):
+                swapper(novo_individuo_ordenado, alocacao, ultimo_destino)
+
+        ultimo_destino = alocacao[2]
+
+    for alocacao in novo_individuo_ordenado:
+
         if alocacao[0] not in aviao_e_ultimo_horario:
             novo_horario = 60
             alocacao[3] = novo_horario
@@ -62,20 +76,6 @@ def mutar(individuo):
             alocacao[3] = novo_horario
             alocacao[5] = alocacao[3] + 30 + alocacao[4]
             aviao_e_ultimo_horario[alocacao[0]] = alocacao[5] + 60
-
-    novo_individuo_ordenado = sorted(novo_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))
-
-    for alocacao in novo_individuo_ordenado:
-
-        if alocacao[0] not in aviao_e_ultimo_destino:
-            aviao_e_ultimo_destino[alocacao[0]] = alocacao[2]
-        else:
-            if(alocacao[1] != ultimo_destino):
-                swapper(novo_individuo_ordenado, alocacao, ultimo_destino)
-
-        ultimo_destino = alocacao[2]
-
-
 
     # items = sorted(aviao_e_ultimo_horario.items(), key=lambda item:item[0])
     #
