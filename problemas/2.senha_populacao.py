@@ -1,5 +1,5 @@
 import random
-from copy import copy
+import copy
 
 quantidade_max_avioes = 84
 # de 0 ate 24h em minutos pulando de 30 em 30 minutos
@@ -39,7 +39,7 @@ def faz_lista_inicial():
 
 
 def mutar(individuo):
-    novo_individuo = list(individuo)
+    novo_individuo = copy.deepcopy(list(individuo))
 
     aviao_e_ultimo_horario = dict()
     aviao_e_ultimo_destino = dict()
@@ -104,7 +104,7 @@ def fitness(individuo):
     punicao_total = 0
     avioes_visitados = set()
     # individuo = sorted(individuo, key=lambda alocacao: alocacao[3])
-    individuo_copia_sem_atual = list(copy(individuo))
+    individuo_copia_sem_atual = copy.deepcopy(list(individuo))
 
     for alocacao in individuo:
         individuo_copia_sem_atual.remove(alocacao)
@@ -113,7 +113,7 @@ def fitness(individuo):
         aviao_tempo_ocupado = [alocacao[3] - 60, alocacao[5]]
 
         # verifica se a manutencao do mesmo dia
-        if aviao_tempo_ocupado[0] < 0 or aviao_tempo_ocupado[0] > 1440:
+        if aviao_tempo_ocupado[0] < 0 or aviao_tempo_ocupado[0] > 1440 or aviao_tempo_ocupado[1] >= 1440:
             # punicao_total = float("-inf")
             punicao_total = -1000001
             break
