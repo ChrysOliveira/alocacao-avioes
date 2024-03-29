@@ -42,6 +42,8 @@ def mutar(individuo):
     novo_individuo = list(individuo)
 
     aviao_e_ultimo_horario = dict()
+    aviao_e_ultimo_destino = dict()
+    ultimo_destino = ""
 
     for alocacao in novo_individuo:
 
@@ -53,6 +55,7 @@ def mutar(individuo):
             alocacao[5] = alocacao[3] + 30 + alocacao[4]
             aviao_e_ultimo_horario[alocacao[0]] = alocacao[5] + 60
         else:
+
             # novo_horario = random.randint(0, len(horarios_possiveis_saida) - 1)
             novo_horario = aviao_e_ultimo_horario[alocacao[0]]
             # alocacao[3] = horarios_possiveis_saida[novo_horario]
@@ -60,10 +63,41 @@ def mutar(individuo):
             alocacao[5] = alocacao[3] + 30 + alocacao[4]
             aviao_e_ultimo_horario[alocacao[0]] = alocacao[5] + 60
 
+    novo_individuo_ordenado = sorted(novo_individuo, key=lambda alocacao: (alocacao[0], alocacao[3]))
+
+    for alocacao in novo_individuo_ordenado:
+
+        if alocacao[0] not in aviao_e_ultimo_destino:
+            aviao_e_ultimo_destino[alocacao[0]] = alocacao[2]
+        else:
+            if(alocacao[1] != ultimo_destino):
+                swapper(novo_individuo_ordenado, alocacao, ultimo_destino)
+
+        ultimo_destino = alocacao[2]
+
+
+
     # items = sorted(aviao_e_ultimo_horario.items(), key=lambda item:item[0])
     #
     # print(items)
-    return novo_individuo
+    return novo_individuo_ordenado
+
+
+def swapper(individuo, alocacao, nova_origem):
+
+    enable = False
+
+    for finder in individuo:
+
+        if enable:
+            if finder[1] == nova_origem:
+                alocacao[1], finder[1] = finder[1], alocacao[1]
+                alocacao[2], finder[2] = finder[2], alocacao[2]
+                alocacao[4], finder[4] = finder[4], alocacao[4]
+                break
+
+        if finder == alocacao:
+            enable = True
 
 
 def fitness(individuo):
@@ -81,7 +115,7 @@ def fitness(individuo):
         # verifica se a manutencao do mesmo dia
         if aviao_tempo_ocupado[0] < 0 or aviao_tempo_ocupado[0] > 1440:
             # punicao_total = float("-inf")
-            punicao_total = -10001
+            punicao_total = -1000001
             break
 
         # valida se tem conflito de aviao nos voos -> mesmo aviao em dois voos diferentes no mesmo horario
@@ -94,16 +128,18 @@ def fitness(individuo):
                 # =-=-=-=-=-=-=-=-=-=-=-=-=-=- TODOS OS INDIVIDUOS ESTAO MORRENDO AQUI
                 if max(aviao_tempo_ocupado) > min(prox_aviao_tempo_ocupado):
                     # punicao_total = float("-inf")
-                    punicao_total = -10002
+                    punicao_total = -1000002
                     break
                 elif alocacao[2] != prox_alocacao[1]:
                     # punicao_total = float("-inf")
-                    punicao_total = -10003
+                    punicao_total = -1000003
+                    break
+                else:
                     break
                 # =-=-=-=-=-=-=-=-=-=-=-=-=-=- AQUI ELE JA TA MORTO
 
         # if punicao_total == float("-inf"):
-        if punicao_total < -10000:
+        if punicao_total < -1000000:
             break
 
         # verifica a quantidade total do tempo alocado de um aviao e aplica a punicao respectiva
